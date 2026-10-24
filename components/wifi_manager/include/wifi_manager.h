@@ -58,11 +58,54 @@ typedef union {
 
 /**
   * @brief Initializes the NVS and wifi, Call this as the first step.
+  * @return
+  *     - WifiOK: Success
+  *     - NVSFailed: NVS Initialization Failed
+  *     - InitializeFailed:Initialization Failed at the esp_wifi_init() step.
 */
 
 wifi_err initialize_wifi(void);
 
 
+/** @brief Configures Wifi for AP (Access Point) Mode
+ * @param ssid SSID you want for the AP mode
+ * @param password Password.
+ * @return
+ *      - WifiOK: Success
+ *      - WifiNotInitialised: Wifi was not initialized before calling this function
+ *      - ConfigFailed: Wifi Configuration Failed.
+ * @attention SSID and Password is 32B and 64B respectively, and are truncated if the provided array is bigger
+ */
+
+wifi_err configure_ap(const uint8_t *ssid, const uint8_t * password);
+
+/** @brief Configures Wifi for STA (Station) Mode
+ * @param ssid SSID you want for the AP mode
+ * @param password Password.
+ * @return
+ *      - WifiOK; Success
+ *      - WifiNotInitialised: Wifi was not initialized before calling this function
+ *      - ConfigFailed: Configuration Failed for the Driver
+ * @attention SSID and Password is 32B and 64B respectively, and are truncated if the provided array is bigger
+ */
+
+
+
+wifi_err configure_sta(const uint8_t *ssid, const uint8_t * password);
+
+/** @brief Configures Wifi for AP-STA Mode
+ * @param ssid SSID you want for the AP mode
+ * @param password Password.
+ * @return
+ *      - WifiOK: Success
+ *      - returns the errors of config_sta and config_ap as it is.
+ *
+ * @attention SSID and Password is 32B and 64B respectively, and are truncated if the provided array is bigger
+ */
+
+
+
+wifi_err configure_ap_sta(const uint8_t * ssid_ap, const uint8_t *password_ap, const uint8_t *ssid_sta, const uint8_t *password_sta);
 
 
 /**
@@ -73,13 +116,14 @@ wifi_err initialize_wifi(void);
   *
   * @return
   *     - WifiOK: Success
-  *     - InvalidMode: if wrong mode is selected
-  *     - InitializeFailed: Failed at init step, Something might be wrong with the RAM or driver startup.
-  *     - ConfigFailed: Failed at config setup, Configuration might be wrong
-  *     - WifiDriverFailed: Failed at the Driver Startup
-  *     - APConnectFailed: Failed at the connect step.
+  *     - OutOfMemory: Memory is full
+  *     - DriverError: Internal Error, equivalent to ESP_ERR_WIFI_CONN
+  *     - InvalidSSID: SSID cannot be located
+  *     - WifiStartFailed: Something Failed when Starting the Driver.
+  *     - WifiNotInitialised: Wifi was not initialized before calling this function.
+  *     - ConfigFailed: Returned by the configure_sta
   * @attention The SSID is 32B and Password is 64B, as per the standard ESP-IDF config structures. Therefore if the values are bigger than that they will be clipped.
 */
-wifi_err connect_to_ap(uint8_t *ssid, uint8_t * password);
+wifi_err connect_to_ap(const uint8_t *ssid, const uint8_t * password);
 
 #endif

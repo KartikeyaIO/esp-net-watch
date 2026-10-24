@@ -31,13 +31,15 @@ wifi_err initialize_wifi(){
  * @brief Configures Wifi for Access Point (AP) mode
  * */
 
-wifi_err configure_ap(uint8_t * ssid, uint8_t *password){
+wifi_err configure_ap(const uint8_t * ssid, const uint8_t *password){
   esp_err_t e;
-  wifi_mode_t mode = WIFI_MODE_AP ;
+  wifi_mode_t mode = WIFI_MODE_AP;
+  size_t size_ssid = strlen((const char *)ssid);
+  size_t size_pass = strlen((const char *)password);
   wifi_interface_t interface = WIFI_IF_AP;
-  wifi_config_t config;
-  memcpy(config.ap.ssid, ssid, 32);
-  memcpy(config.ap.password, password, 64);
+  wifi_config_t config = {0};
+  memcpy(config.ap.ssid, ssid, size_ssid);
+  memcpy(config.ap.password, password, size_pass);
   e = esp_wifi_set_mode(mode);
   if (e == ESP_ERR_WIFI_NOT_INIT ){
     return WifiNotInitialised;
@@ -55,13 +57,15 @@ wifi_err configure_ap(uint8_t * ssid, uint8_t *password){
  * @brief Configures Wifi for Station (STA) mode
  * */
 
-wifi_err configure_sta(uint8_t * ssid, uint8_t *password){
+wifi_err configure_sta(const uint8_t * ssid, const uint8_t *password){
   esp_err_t e;
   wifi_mode_t mode = WIFI_MODE_STA ;
   wifi_interface_t interface = WIFI_IF_STA;
-  wifi_config_t config;
-  memcpy(config.sta.ssid, ssid, 32);
-  memcpy(config.sta.password, password, 64);
+  size_t size_ssid = strlen((const char *)ssid);
+  size_t size_pass = strlen((const char *)password);
+  wifi_config_t config ={0};
+  memcpy(config.sta.ssid, ssid, size_ssid);
+  memcpy(config.sta.password, password, size_pass);
   e = esp_wifi_set_mode(mode);
   if (e == ESP_ERR_WIFI_NOT_INIT ){
     return WifiNotInitialised;
@@ -79,15 +83,15 @@ wifi_err configure_sta(uint8_t * ssid, uint8_t *password){
  * @brief Configures Wifi for AP-STA mode
  * */
 
-wifi_err configure_ap_sta(uint8_t * ssid_ap, uint8_t *password_ap, uint8_t *ssid_sta, uint8_t *password_sta){
+wifi_err configure_ap_sta(const uint8_t * ssid_ap, const uint8_t *password_ap, const uint8_t *ssid_sta, const uint8_t *password_sta){
   wifi_err e;
   e = configure_ap(ssid_ap, password_ap);
   if (e != WifiOK){
-    return ConfigFailed;
+    return e;
   }
   e = configure_sta(ssid_sta,password_sta);
   if (e != WifiOK){
-    return ConfigFailed;
+    return e;
   }
   return WifiOK;
 
@@ -97,7 +101,7 @@ wifi_err configure_ap_sta(uint8_t * ssid_ap, uint8_t *password_ap, uint8_t *ssid
 
 // Function to connect to an Access point
 
-wifi_err connect_to_ap(uint8_t * ssid, uint8_t * password){
+wifi_err connect_to_ap(const uint8_t * ssid, const uint8_t * password){
     wifi_err e;
     esp_err_t err;
     e = configure_sta(ssid, password);
